@@ -11,6 +11,13 @@ Requirements
 Python, Pygame, BeautifulSoup4
 
 
+To Run
+=====
+
+Open a terminal and run
+$ python main2.py
+
+
 Controls
 =====
 
