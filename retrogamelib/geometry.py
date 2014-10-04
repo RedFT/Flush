@@ -5,6 +5,14 @@ class Vector:
     def __init__(self, x, y):
         self.x, self.y = x, y
         
+    def __getitem__(self, item):
+        if item == 0: 
+            return self.x
+        elif item == 1: 
+            return self.y
+        else:
+            raise IndexError
+            
     def __repr__(self):
         return "Vector(%s, %s)"%(self.x, self.y)
    

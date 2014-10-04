@@ -1,8 +1,52 @@
 import pygame
+import os
+
+from constants import SCALE
+
+
+def filepath(path):
+    if "/" in path:
+        path = path.split("/")
+    elif "\\" in path:
+        path = path.split("\\")
+    if type(path) is type([]):
+        return os.path.join(*path)
+    else:
+        return os.path.join(path)
+
+IMAGES = {}
+def load_image(filename):
+    if filename not in IMAGES:
+         new_image = pygame.image.load(filepath(filename)).convert_alpha()
+         new_image = pygame.transform.scale(
+                new_image, (new_image.get_width() * SCALE, 
+                        new_image.get_height() * SCALE
+                        )
+                )
+         IMAGES[filename] = new_image
+        
+    return IMAGES[filename]
+
+def play_music(filename, loop=0, volume=1.0):
+    pygame.mixer.music.load(filepath(filename))
+    pygame.mixer.music.set_volume(volume)
+    pygame.mixer.music.play(loop)
+
+SOUNDS = {}
+SND_VOLUME = 1.0
+def play_sound(filename, volume=1.0):
+    if filename not in SOUNDS:
+        SOUNDS[filename] = pygame.mixer.Sound(filepath(filename))
+        SOUNDS[filename].set_volume(SND_VOLUME*volume)
+    SOUNDS[filename].play()
+
+def set_global_sound_volume(volume):
+    global SND_VOLUME
+    SND_VOLUME = volume
+
 
 class Timer(object):
-    """ A class that updates fps and speedfactor
-     requires: pygame"""
+    """ A class that updates fps and delta time between frames """
 
     def __init__(self):
         super(Timer, self).__init__()
@@ -25,36 +69,11 @@ class Timer(object):
             self.frames = self.num_frames
             self.num_frames = 0
 
-        self.speed_factor = self.diff_time / 1000. * 32.
+        self.speed_factor = self.diff_time / 100.
         if self.speed_factor > 1:
             self.speed_factor = 1
         self.last_time = self.new_time
         self.num_frames += 1
 
 
-class Animator(object):
-    def __init__(self, rate):
-        super(Animator, self).__init__()
-
-        self.rate = rate
-
-        self.new_time = 0
-        self.last_time = 0
-        self.diff_time = 0
-
-        self.next_frame = 0
-        self.current_frame = 0
-        
-
-    def on_update(self, sequence):
-        self.new_time = pygame.time.get_ticks()
-
-        if self.new_time > self.last_time + self.rate:
-            self.last_time = self.new_time
-
-            self.next_frame += 1
-
-            if self.next_frame >= len(sequence):
-                self.next_frame = 0;
-
-            self.current_frame = sequence[self.next_frame]
+FPS = Timer()

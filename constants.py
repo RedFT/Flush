@@ -1,44 +1,16 @@
-from retrogamelib.gameobject import Group
+import os
 
-
-WIN_SIZE = WWIDTH, WHEIGHT = 640, 480;
+WIN_SIZE = WIN_WIDTH, WIN_HEIGHT = 640, 480;
 FPS = 60.;
 CAPTION = "Platformer"
+SCALE = 4
 
 
 # Resources #
-FONT_DIR = "./resources/fonts/"
-IMAGE_DIR= "./resources/images/"
-SOUND_DIR= "./resources/sounds/"
-MAP_DIR  = "./resources/maps/"
-
-
-snowfg_sprites_list = Group()
-snowbg_sprites_list = Group()
-tilebg_sprites_list = Group()
-tilemg_sprites_list = Group()
-tile_sprites_list = Group()
-tilefg_sprites_list = Group()
-enemy_sprites_list = Group()
-player_sprites_list = Group()
-bullet_sprites_list = Group()
-fog_sprites_list = Group()
-all_sprites_list = Group()
-
-
-all_groups_list = [
-                    all_sprites_list,
-                    snowbg_sprites_list,
-                    tilebg_sprites_list,
-                    
-                    tilemg_sprites_list,
-                    player_sprites_list,
-                    enemy_sprites_list,
-                    bullet_sprites_list,
-                    
-                    tilefg_sprites_list,
-                    snowfg_sprites_list
-                  ]
+FONT_DIR = os.path.join("resources", "fonts") + "/"
+IMAGE_DIR= os.path.join("resources", "images") + "/"
+SOUND_DIR= os.path.join("resources", "sounds") + "/"
+MAP_DIR  = os.path.join("resources", "maps") + "/"
 
 STORY = {'intro.txt': ["Hello!",
                         "I am R458 Model 71MM1!",

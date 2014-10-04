@@ -1,3 +1,7 @@
+"""
+This has to be the worst thing I've ever coded up in my life hehe
+"""
+
 import random
 import pygame
 
@@ -7,6 +11,7 @@ from retrogamelib.geometry   import *
 from retrogamelib.util       import *
 from utils                   import Animator, Timer
 from math                    import sin
+from entities                import Bullet
 
 
 class Drawable(Object):
@@ -85,6 +90,7 @@ class Drawable(Object):
         surface.blit(self.image, self.rect, self.part)
 
 
+"""
 class Bullet(Drawable):
     def __init__(self, x, y, w, h, groups, resize=1, face_left=False):
         self.x = x + w
@@ -140,10 +146,6 @@ class Bullet(Drawable):
             
     def on_update(self, speed_factor):
         self.change_color(speed_factor)
-        """
-        self.vx += self.accelx * speed_factor
-        self.vy += self.accely * speed_factor
-        """
         
         if 0 < self.vx < self.leastx:
             self.vx = 0
@@ -164,7 +166,7 @@ class Bullet(Drawable):
 
     def on_render(self, surface):
         surface.blit(self.image, self.rect)
-                
+"""  
 
 class Tile(Drawable):
     def __init__(self, image=None, x=0, y=0, w=16, h=16, tx=0, ty=0, resize=None, groups=[]):
@@ -280,6 +282,8 @@ class Entity(Drawable):
 
         self.resize = resize
 
+        # ABSOLUTELY NO!
+        # Use a state machine to handle states!
         self.move_left      = False
         self.move_right     = False
         self.face_left      = False
@@ -421,11 +425,14 @@ class Entity(Drawable):
             self.can_jump = False
         else:
             self.can_jump = True
+            
         if self.pos[1] - self.last_pos[1] > .8:
             self.on_ground = False
+            
         elif not self.on_ground:
             self.part.x = self.part.w * 2
             self.anim.next_frame = 5
+            
         elif self.still:
             self.part.x = 0
             self.anim.next_frame = 5
@@ -437,8 +444,7 @@ class Entity(Drawable):
 
 
     def shoot(self):
-        bullet = Bullet(self.x, self.y, self.w, self.h, groups=[all_sprites_list, bullet_sprites_list],
-                        resize=self.resize, face_left=self.face_left)
+        bullet = Bullet(0, 0)
  
 
 
