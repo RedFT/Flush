@@ -23,6 +23,10 @@ class Scene(object):
         self.anim_sys       = AnimationSystem()
         self.fps_text_sys   = FpsTextSystem("Terminus.ttf", self.fps)
         self.collision_sys  = CollisionDetectionSystem()
+        self.camera_sys     = CameraSystem()
+        print type(self.camera_sys)
+        
+        
         #self.collision_sys.show_boxes()
         # Test Map
         tiles_list = load_map("tallmap.tmx", "mg")
@@ -30,6 +34,7 @@ class Scene(object):
             self.render_sys.register(tile)
             if tile.collidable == True:
                 self.collision_sys.register(tile)
+            self.camera_sys.register(tile)
             
         # Test Player
         self.player     = SewerMan((40, 40))
@@ -37,11 +42,19 @@ class Scene(object):
         self.anim_sys.register(self.player)
         self.move_sys.register(self.player)
         self.collision_sys.register(self.player)
+        self.camera_sys.register(self.player)
         
         # Test Fps Text
         self.fps_text    = Text((5,5), (0,0,255))
         self.render_sys.register(self.fps_text)
         self.fps_text_sys.register(self.fps_text)
+        
+        self.cam        = Camera(
+                WIN_WIDTH, WIN_HEIGHT,
+                WIN_WIDTH/2, WIN_HEIGHT/2,
+                7.5, 7.5)
+        self.camera_sys.cam = self.cam
+        self.cam.follow(self.player)
         
         self.running = False
         self.loaded  = False
@@ -72,7 +85,7 @@ class Scene(object):
         
         self.move_sys.on_update(speed_factor)
         self.collision_sys.on_update(speed_factor)
-        
+        self.camera_sys.on_update(speed_factor)
         self.anim_sys.on_update(speed_factor)
         
     def on_render(self):

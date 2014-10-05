@@ -70,7 +70,7 @@ class GeometryComponent(Component):
 
 class RenderComponent(Component):
 
-    def __init__(self, owner, image=None, color=(255, 0, 255)):
+    def __init__(self, owner, image=None, color=(255, 0, 255), make_reverse=False):
         super(RenderComponent, self).__init__(owner, "rendercomponent")
 
         if not image:
@@ -83,3 +83,11 @@ class RenderComponent(Component):
             self.image = image
         else:
             self.image      = load_image(IMAGE_DIR + image)
+        
+        if make_reverse == True:
+            self.image_reversed = pygame.Surface((self.image.get_width(), self.image.get_height()))
+            
+            
+            
+            
+            

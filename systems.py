@@ -2,8 +2,12 @@ import pygame
 
 from pygame.font import Font
 
-from constants import WIN_WIDTH, FONT_DIR, SCALE
+from constants import WIN_WIDTH, WIN_HEIGHT, FONT_DIR, SCALE
 from entities  import Entity, StaticText, DynamicText, SewerMan
+from retrogamelib.geometry import Vector
+
+from math import sin
+
 
 class System(object):
 
@@ -27,6 +31,53 @@ class System(object):
     
     def update(self, speed_factor):
         pass
+
+
+class CameraSystem(System):
+
+    def __init__(self, cam=None):
+        super(CameraSystem, self).__init__()
+        self.cam            = cam
+    
+    def registerCamera(self, cam):
+        self.cam            = cam
+    
+    def on_update(self, speed_factor):
+        print "updating"
+        tgt_geo = self.cam.target.get_component("geometrycomponent")
+        cam_geo = self.cam.get_component("geometrycomponent")
+        distance            = Vector(
+                (float(tgt_geo.position.x) - cam_geo.position.x) + (tgt_geo.dst_rect.w / 2),
+                (float(tgt_geo.position.y) - cam_geo.position.y) + (tgt_geo.dst_rect.h / 2)
+                )
+
+        velocity            = Vector(
+                distance.x / self.cam.velocity.x,
+                distance.x / self.cam.velocity.x
+                )
+
+        cam_geo.position += (velocity * speed_factor)
+
+        self.cam.elapsed    += 1 * speed_factor
+
+        x = (1 * (sin(self.cam.elapsed * self.cam.sinspeedx) * 4) + cam_geo.position.x)
+        y = (1 * (sin(self.cam.elapsed * self.cam.sinspeedy) * 4) + cam_geo.position.y)
+
+        cam_geo.dst_rect.x = x - self.cam.offset.x
+        cam_geo.dst_rect.y = y - self.cam.offset.y
+        
+        self.translate(self.registered_entities)
+
+    def translate(self, group):
+        for other in group:
+            other_geo = other.get_component("geometrycomponent")
+            cam_geo   = self.cam.get_component("geometrycomponent")
+            other_geo.dst_rect.x -= cam_geo.dst_rect.x
+            other_geo.dst_rect.y -= cam_geo.dst_rect.y
+    
+    def center_at(self, pos):
+        self.cam.offset = pos
+        self.cam.target = None
 
 
 class TextSystem(System):
@@ -154,15 +205,6 @@ class EventSystem(System):
             entity.on_notify(entity, event)
 
 
-class CameraSystem(System):
-
-    def __init__(self):
-        super(CameraSystem, self).__init__()
-
-    def on_update(self, speed_factor):
-        pass
-
-
 class CollisionDetectionSystem(System):
 
     def __init__(self):
@@ -221,7 +263,7 @@ class CollisionDetectionSystem(System):
         return ret_list
 
     def on_update(self, speed_factor):
-        largest_x   = max(self.registered_entities, key=lambda ent: 
+        largest_x   = max(self.registered_entities, key=lambda ent:
                 ent.get_component("geometrycomponent").dst_rect.right).get_component("geometrycomponent").dst_rect.right
         largest_y   = max(self.registered_entities, key=lambda ent: 
                 ent.get_component("geometrycomponent").dst_rect.bottom).get_component("geometrycomponent").dst_rect.bottom
@@ -230,6 +272,7 @@ class CollisionDetectionSystem(System):
         smallest_y  = min(self.registered_entities, key=lambda ent: 
                 ent.get_component("geometrycomponent").position.y).get_component("geometrycomponent").position.y
         
+       
         list_to_test = self.search_area(self.registered_entities, 
                 (smallest_x, largest_x), (smallest_y, largest_y))
                 
@@ -245,7 +288,7 @@ class CollisionDetectionSystem(System):
                         ent1.on_notify(ent2, "collision")
                         ent2.on_notify(ent1, "collision")
         
-        print "Ran " + str(count) + " tests using " + str(len(list_to_test)) + " groups"
+        #print "Ran " + str(count) + " tests using " + str(len(list_to_test)) + " groups"
                         
         
     
