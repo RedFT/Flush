@@ -104,25 +104,74 @@ class SewerMan(Entity):
         super(SewerMan, self).__init__(True)
         
         self.face_left = False
-        anim_cmp = AnimationComponent(self, 7.5)
+        self.on_ground  = False
         
-        anim_cmp.sequences["walk"]  = [1, 2, 1, 3, 4, 3,]
-        anim_cmp.sequences["stand"] = [0]
-        anim_cmp.sequences["jump"]  = [2]
-        anim_cmp.curr_sequence = anim_cmp.sequences["walk"]
+        anim_cmp = AnimationComponent(self, 10)
+        
+        anim_cmp["walk"]  = [1, 2, 1, 3, 4, 3,]
+        anim_cmp["stand"] = [0]
+        anim_cmp["fall"]  = [2]
+        anim_cmp["slow"]  = [1]
+        anim_cmp.set_current_sequence("walk")
         
         self.components.append(anim_cmp)
-        self.components.append(PhysicsComponent(self, (12, 0), (10, 10), (0,0)))
+        self.components.append(PhysicsComponent(self, (0, 0), (17, 20), (2,2)))
         self.components.append(MovementComponent(self, position))
         self.components.append(GeometryComponent(self, position, (10,10)))
         self.components.append(RenderComponent(self, 'SewerMan.png'))
+        self.components.append(ControllerComponent(self))
     
     def on_notify(self, entity, event):
+        mov_cmp = self.get_component("movementcomponent")
+        phy_cmp = self.get_component("physicscomponent")
+        geo_cmp = self.get_component("geometrycomponent")
+        ctrl_cmp = self.get_component("controllercomponent")
+        if event == "up_pressed":
+            ctrl_cmp.jump = True
+        if event == "left_pressed":
+            ctrl_cmp.move_left = True
+        if event == "right_pressed":
+            ctrl_cmp.move_right = True
+        if event == "up_released":
+            ctrl_cmp.jump = False
+        if event == "left_released":
+            ctrl_cmp.move_left = False
+        if event == "right_released":
+            ctrl_cmp.move_right = False
+            
         if event == "collision":
-            #print "Collision: ", self, entity
-            phy_cmp = self.get_component("physicscomponent")
-            geo_cmp = self.get_component("geometrycomponent")
-            phy_cmp.velocity.x *= -1
-            geo_cmp.position.x += phy_cmp.velocity.x
+            # Get rect before collision
+            old_rect = pygame.Rect(mov_cmp.old_position.x, mov_cmp.old_position.y, geo_cmp.dst_rect.w, geo_cmp.dst_rect.h)
+            
+            # Get current rect of other entity
+            other_rect = entity.get_component("geometrycomponent").dst_rect
+            
+            
+            # Get direction of colliding object
+            direction = ""
+            if old_rect.bottom <= other_rect.top:
+                direction = "bottom"
+            elif old_rect.top >= other_rect.bottom:
+                direction = "top"
+            elif old_rect.left >= other_rect.right:
+                direction = "left"
+            elif old_rect.right <= other_rect.left:
+                direction = "right"
+            
+            
+            # Respond to colliding object
+            if direction == "right":
+                phy_cmp.velocity.x *= -.5
+                geo_cmp.position.x = other_rect.x - geo_cmp.dst_rect.w
+            elif direction == "left":
+                phy_cmp.velocity.x *= -.5
+                geo_cmp.position.x = other_rect.right + 1
+            elif direction == "top":
+                geo_cmp.position.y = other_rect.bottom + 1
+            elif direction == "bottom":
+                self.on_ground = True
+                geo_cmp.position.y = other_rect.top - geo_cmp.dst_rect.h
+                #phy_cmp.velocity.y = 
+            
             geo_cmp.dst_rect.x, geo_cmp.dst_rect.y = geo_cmp.position
             

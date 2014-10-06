@@ -29,6 +29,15 @@ class AnimationComponent(Component):
         self.sequences = {}     # dictionary of animation sequences
         self.curr_sequence = [] # the current animation sequence
     
+    def __len__(self):
+        len(self.sequences.keys())
+    
+    def __setitem__(self, key, item):
+        self.sequences[key] = item
+    
+    def __getitem__(self, key):
+        return self.sequences[key]
+    
     def new_sequence(self, new_sequence_name, new_sequence):
         self.sequences[new_sequence_name] = new_sequence
     
@@ -44,10 +53,19 @@ class PhysicsComponent(Component):
             initial_acceleration=(0, 0)):
         super(PhysicsComponent, self).__init__(owner, "physicscomponent")
         
-        self.gravity        = 9
+        self.gravity        = 5
         self.velocity       = Vector(*velocity)
         self.velocity_max   = Vector(*maximum_velocity)
         self.acceleration   = Vector(*initial_acceleration)
+        
+        
+class ControllerComponent (Component):
+
+    def __init__(self, owner):
+        super(ControllerComponent, self).__init__(owner, "controllercomponent")
+        self.move_left = False
+        self.move_right = False
+        self.jump = False
 
 
 class MovementComponent(Component):
@@ -56,6 +74,7 @@ class MovementComponent(Component):
         super(MovementComponent, self).__init__(owner, "movementcomponent")
 
         self.new_position = Vector(*position)
+        self.old_position = Vector(*position)
 
         
 class GeometryComponent(Component):
@@ -72,7 +91,6 @@ class GeometryComponent(Component):
         else:
             self.src_rect = pygame.Rect(0, 0, *scaled_dimensions)
             
-        self.old_position = Vector(*scaled_position)
         self.position = Vector(*scaled_position)
         self.dst_rect = pygame.Rect(*(scaled_position + scaled_dimensions))
         
@@ -82,7 +100,9 @@ class RenderComponent(Component):
 
     def __init__(self, owner, image=None, color=(255, 0, 255), make_reverse=False):
         super(RenderComponent, self).__init__(owner, "rendercomponent")
-
+        
+        self.trans_rect = pygame.Rect(0, 0, 0, 0)
+        
         if not image:
             geo_cmp = owner.get_component("geometrycomponent")
             rect = geo_cmp.src_rect

@@ -23,8 +23,9 @@ class Scene(object):
         self.anim_sys       = AnimationSystem()
         self.fps_text_sys   = FpsTextSystem("Terminus.ttf", self.fps)
         self.collision_sys  = CollisionDetectionSystem()
+        self.event_sys      = EventSystem()
         self.camera_sys     = CameraSystem()
-        print type(self.camera_sys)
+        #print type(self.camera_sys)
         
         
         #self.collision_sys.show_boxes()
@@ -39,21 +40,14 @@ class Scene(object):
             
             
         # Test Player
-        """
-        for x in range(40, 120, 20):
-            for y in [40,50,60]:
-                player     = SewerMan((x,y))
-                self.render_sys.register(player)
-                self.anim_sys.register(player)
-                self.move_sys.register(player)
-                self.collision_sys.register(player)
-        """
-        
         self.player     = SewerMan((40, 40))
         self.render_sys.register(self.player)
         self.anim_sys.register(self.player)
         self.move_sys.register(self.player)
         self.collision_sys.register(self.player)
+        self.event_sys.register(self.player, 
+                ["up_pressed",  "down_pressed",  "left_pressed",  "right_pressed",
+                 "up_released", "down_released", "left_released", "right_released"])
         self.camera_sys.register(self.player)
         
         # Test Fps Text
@@ -65,19 +59,18 @@ class Scene(object):
                 WIN_WIDTH, WIN_HEIGHT,
                 WIN_WIDTH/2, WIN_HEIGHT/2,
                 7.5, 7.5)
-        self.camera_sys.cam = self.cam
+        self.camera_sys.registerCamera(self.cam)
+        self.render_sys.registerCamera(self.cam)
         self.cam.follow(self.player)
         
         self.running = False
         self.loaded  = False
         
         self.last_time = 0
-        self.player_list = []
         
     def is_running(self):
         return self.running
     
-
     def is_loaded(self):
         return self.loaded
     
@@ -88,36 +81,39 @@ class Scene(object):
         pass
         
     def on_event(self, events):
-        pass 
+        for e in events:
+            if e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_UP:
+                    self.event_sys.notify(None, "up_pressed")
+                if e.key == pygame.K_DOWN:
+                    self.event_sys.notify(None, "down_pressed")
+                if e.key == pygame.K_LEFT:
+                    self.event_sys.notify(None, "left_pressed")
+                if e.key == pygame.K_RIGHT:
+                    self.event_sys.notify(None, "right_pressed")
+            if e.type == pygame.KEYUP:
+                if e.key == pygame.K_UP:
+                    self.event_sys.notify(None, "up_released")
+                if e.key == pygame.K_DOWN:
+                    self.event_sys.notify(None, "down_released")
+                if e.key == pygame.K_LEFT:
+                    self.event_sys.notify(None, "left_released")
+                if e.key == pygame.K_RIGHT:
+                    self.event_sys.notify(None, "right_released")
         
     def on_update(self):
         self.fps.on_update()
-        if len(self.player_list) < 11:
-            curr_time = self.fps.get_current_time()
-            """
-            if curr_time - self.last_time > 1000:
-                player     = SewerMan((40, 50))
-                self.render_sys.register(player)
-                self.anim_sys.register(player)
-                self.move_sys.register(player)
-                self.collision_sys.register(player)
-                
-                self.last_time = curr_time
-                self.player_list.append(player)
-            """
             
         speed_factor = self.fps.speed_factor
         self.fps_text_sys.on_update(speed_factor)
         
         self.move_sys.on_update(speed_factor)
         self.collision_sys.on_update(speed_factor)
-        self.camera_sys.on_update(speed_factor)
         self.anim_sys.on_update(speed_factor)
+        self.camera_sys.on_update(speed_factor)
         
     def on_render(self):
         self.render_sys.on_update(self.fps.speed_factor)
-        #self.surf_main.blit(self.collision_sys.surf, (0,0))
-        pass
     
     def on_run(self):
         self.on_event()
