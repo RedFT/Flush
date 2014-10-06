@@ -17,12 +17,13 @@ def filepath(path):
 IMAGES = {}
 def load_image(filename):
     if filename not in IMAGES:
-         new_image = pygame.image.load(filepath(filename)).convert_alpha()
+         new_image = pygame.image.load(filepath(filename))
          new_image = pygame.transform.scale(
                 new_image, (new_image.get_width() * SCALE, 
                         new_image.get_height() * SCALE
                         )
                 )
+         new_image.convert_alpha()
          IMAGES[filename] = new_image
         
     return IMAGES[filename]
@@ -52,7 +53,7 @@ class Timer(object):
         super(Timer, self).__init__()
 
         self.old_time = 0
-        self.new_time = 0
+        self.curr_time = 0
         self.last_time = 0
         self.diff_time = 0
         self.speed_factor = 0
@@ -61,19 +62,22 @@ class Timer(object):
 
 
     def on_update(self):
-        self.new_time = pygame.time.get_ticks()
-        self.diff_time = self.new_time - self.last_time
+        self.curr_time = pygame.time.get_ticks()
+        self.diff_time = self.curr_time - self.last_time
 
-        if self.new_time > self.old_time + 1000.:
-            self.old_time = self.new_time
+        if self.curr_time > self.old_time + 1000.:
+            self.old_time = self.curr_time
             self.frames = self.num_frames
             self.num_frames = 0
 
         self.speed_factor = self.diff_time / 100.
         if self.speed_factor > 1:
             self.speed_factor = 1
-        self.last_time = self.new_time
+        self.last_time = self.curr_time
         self.num_frames += 1
+    
+    def get_current_time(self):
+        return self.curr_time
 
 
 FPS = Timer()

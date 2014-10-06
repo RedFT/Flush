@@ -92,15 +92,17 @@ class SewerMan(Entity):
         anim_cmp.curr_sequence = anim_cmp.sequences["walk"]
         
         self.components.append(anim_cmp)
-        self.components.append(PhysicsComponent(self, (-12, 0), (10, 10), (0,0)))
+        self.components.append(PhysicsComponent(self, (12, 0), (10, 10), (0,0)))
+        self.components.append(MovementComponent(self, position))
         self.components.append(GeometryComponent(self, position, (10,10)))
         self.components.append(RenderComponent(self, 'SewerMan.png'))
     
     def on_notify(self, entity, event):
         if event == "collision":
-            print "Collision: ", self, entity
+            #print "Collision: ", self, entity
             phy_cmp = self.get_component("physicscomponent")
             geo_cmp = self.get_component("geometrycomponent")
             phy_cmp.velocity.x *= -1
             geo_cmp.position.x += phy_cmp.velocity.x
             geo_cmp.dst_rect.x, geo_cmp.dst_rect.y = geo_cmp.position
+            

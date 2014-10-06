@@ -66,7 +66,7 @@ class Game(object):
             self.on_render()
             
             pygame.display.update()
-            self.surf_main.fill((0,0,0,255))
+            self.surf_main.fill((80,80,100))
             
 
 

@@ -24,6 +24,7 @@ class Scene(object):
         self.fps_text_sys   = FpsTextSystem("Terminus.ttf", self.fps)
         self.collision_sys  = CollisionDetectionSystem()
         #self.collision_sys.show_boxes()
+        
         # Test Map
         tiles_list = load_map("tallmap.tmx", "mg")
         for tile in tiles_list:
@@ -31,12 +32,23 @@ class Scene(object):
             if tile.collidable == True:
                 self.collision_sys.register(tile)
             
+            
         # Test Player
-        self.player     = SewerMan((40, 40))
-        self.render_sys.register(self.player)
-        self.anim_sys.register(self.player)
-        self.move_sys.register(self.player)
-        self.collision_sys.register(self.player)
+        """
+        for x in range(40, 120, 20):
+            for y in [40,50,60]:
+                player     = SewerMan((x,y))
+                self.render_sys.register(player)
+                self.anim_sys.register(player)
+                self.move_sys.register(player)
+                self.collision_sys.register(player)
+        """
+        
+        player     = SewerMan((40, 40))
+        self.render_sys.register(player)
+        self.anim_sys.register(player)
+        self.move_sys.register(player)
+        self.collision_sys.register(player)
         
         # Test Fps Text
         self.fps_text    = Text((5,5), (0,0,255))
@@ -47,6 +59,7 @@ class Scene(object):
         self.loaded  = False
         
         self.last_time = 0
+        self.player_list = []
         
     def is_running(self):
         return self.running
@@ -66,8 +79,21 @@ class Scene(object):
         
     def on_update(self):
         self.fps.on_update()
+        if len(self.player_list) < 11:
+            curr_time = self.fps.get_current_time()
+            """
+            if curr_time - self.last_time > 1000:
+                player     = SewerMan((40, 50))
+                self.render_sys.register(player)
+                self.anim_sys.register(player)
+                self.move_sys.register(player)
+                self.collision_sys.register(player)
+                
+                self.last_time = curr_time
+                self.player_list.append(player)
+            """
+            
         speed_factor = self.fps.speed_factor
-
         self.fps_text_sys.on_update(speed_factor)
         
         self.move_sys.on_update(speed_factor)

@@ -44,9 +44,18 @@ class PhysicsComponent(Component):
             initial_acceleration=(0, 0)):
         super(PhysicsComponent, self).__init__(owner, "physicscomponent")
         
+        self.gravity        = 9
         self.velocity       = Vector(*velocity)
         self.velocity_max   = Vector(*maximum_velocity)
         self.acceleration   = Vector(*initial_acceleration)
+
+
+class MovementComponent(Component):
+
+    def __init__(self, owner, position=(50,50)):
+        super(MovementComponent, self).__init__(owner, "movementcomponent")
+
+        self.new_position = Vector(*position)
 
         
 class GeometryComponent(Component):
@@ -63,9 +72,10 @@ class GeometryComponent(Component):
         else:
             self.src_rect = pygame.Rect(0, 0, *scaled_dimensions)
             
-            
+        self.old_position = Vector(*scaled_position)
         self.position = Vector(*scaled_position)
         self.dst_rect = pygame.Rect(*(scaled_position + scaled_dimensions))
+        
         
 
 class RenderComponent(Component):
