@@ -51,8 +51,27 @@ class DynamicText(Text):
         self.pretext = pretext
         self.attr_to_watch = attr_to_watch
         self.posttext = posttext
-
         
+
+class Camera(Entity):
+
+    def __init__(self, ww, wh, offx, offy, vx, vy):
+        super(Camera, self).__init__(False)
+        self.components.append(GeometryComponent(self, (0,0), (ww, wh)))
+      
+        self.target     = None
+        
+        self.offset     = Vector(offx, offy)
+        self.velocity   = Vector(vx, vy)
+        
+        self.elapsed    = 0
+        self.sinspeedx  = .05
+        self.sinspeedy  = .10
+
+    def follow(self, target):
+        self.target     = target
+
+    
 class Bullet(Entity):
 
     def __init__(self, x, y, direction=(1, 0)):
@@ -84,6 +103,7 @@ class SewerMan(Entity):
     def __init__(self, position=(0,0)):
         super(SewerMan, self).__init__(True)
         
+        self.face_left = False
         anim_cmp = AnimationComponent(self, 7.5)
         
         anim_cmp.sequences["walk"]  = [1, 2, 1, 3, 4, 3,]
