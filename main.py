@@ -12,7 +12,6 @@ import pygame
 import random
 import os
 
-
 from constants               import WIN_SIZE, CAPTION, FONT_DIR
 from utils                   import Timer
 from scene                   import Scene
@@ -66,7 +65,7 @@ class Game(object):
             self.on_render()
             
             pygame.display.update()
-            self.surf_main.fill((80,80,100))
+            self.surf_main.fill((80,80,100, 255))
             
 
 

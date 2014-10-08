@@ -11,9 +11,13 @@ class Component(object):
         super(Component, self).__init__()
         self.owner          = owner
         self.component_type = component_type
+        
+    def reload(self):
+        pass
 
 
 class AnimationComponent(Component):
+
     def __init__(self, owner, rate):
         super(AnimationComponent, self).__init__(owner, "animationcomponent")
 
@@ -63,9 +67,9 @@ class ControllerComponent (Component):
 
     def __init__(self, owner):
         super(ControllerComponent, self).__init__(owner, "controllercomponent")
-        self.move_left = False
+        self.move_left  = False
         self.move_right = False
-        self.jump = False
+        self.jump       = False
 
 
 class MovementComponent(Component):
@@ -102,21 +106,37 @@ class RenderComponent(Component):
         super(RenderComponent, self).__init__(owner, "rendercomponent")
         
         self.trans_rect = pygame.Rect(0, 0, 0, 0)
+        self.image_forward  = None
+        self.image          = None
+        self.image_reversed = None
         
+        geo_cmp = owner.get_component("geometrycomponent")
         if not image:
-            geo_cmp = owner.get_component("geometrycomponent")
             rect = geo_cmp.src_rect
             self.image  = pygame.Surface((rect.w, rect.h)).convert_alpha()
             self.image.fill(color);
             return
+            
         if type(image) == pygame.Surface:
-            self.image = image
+            self.image_forward = image
         else:
-            self.image      = load_image(IMAGE_DIR + image)
+            self.image_forward = load_image(IMAGE_DIR + image)
+            
+        self.image = self.image_forward
         
         if make_reverse == True:
-            self.image_reversed = pygame.Surface((self.image.get_width(), self.image.get_height()))
+            self.image_reversed = pygame.Surface((self.image_forward.get_width(), self.image_forward.get_height()))
+            self.image_reversed = self.image_reversed.convert_alpha()
+            self.image_reversed.fill((0,0,0,0))
+            for x in range(0, self.image_forward.get_width(), geo_cmp.src_rect.width):
+                self.image_reversed.blit(self.image_forward, 
+                        pygame.Rect(self.image_forward.get_width() - x - geo_cmp.src_rect.width, 0, 0,0), 
+                        pygame.Rect(x,0, geo_cmp.src_rect.width, geo_cmp.src_rect.height))
+                        
+            self.image_reversed = pygame.transform.flip(self.image_reversed, True, False)
             
+            self.image = self.image_reversed
+        
             
             
             

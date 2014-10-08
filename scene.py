@@ -28,14 +28,16 @@ class Scene(object):
         #print type(self.camera_sys)
         
         
-        #self.collision_sys.show_boxes()
+        self.collision_sys.show_boxes()
         
         # Test Map
         tiles_list = load_map("tallmap.tmx", "mg")
         for tile in tiles_list:
             self.render_sys.register(tile)
+            
             if tile.collidable == True:
                 self.collision_sys.register(tile)
+                
             self.camera_sys.register(tile)
             
             
@@ -91,6 +93,12 @@ class Scene(object):
                     self.event_sys.notify(None, "left_pressed")
                 if e.key == pygame.K_RIGHT:
                     self.event_sys.notify(None, "right_pressed")
+                if e.key == pygame.K_EQUALS:
+                    self.collision_sys.max_entities_per_quad += 1
+                if e.key == pygame.K_MINUS:
+                    self.collision_sys.max_entities_per_quad -= 1
+                if e.key == pygame.K_SPACE:
+                    bullet = Bullet()
             if e.type == pygame.KEYUP:
                 if e.key == pygame.K_UP:
                     self.event_sys.notify(None, "up_released")
@@ -114,6 +122,7 @@ class Scene(object):
         
     def on_render(self):
         self.render_sys.on_update(self.fps.speed_factor)
+        self.collision_sys.draw_quads(self.camera_sys)
     
     def on_run(self):
         self.on_event()

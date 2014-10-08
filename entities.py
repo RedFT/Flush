@@ -11,12 +11,18 @@ class Entity(object):
         self.components = []
         self.systems    = []
     
+    def __getitem__(self, key):
+        return self.get_component(key)
+        
     def get_component(self, component_type):
         """ Iterate through component list for a component with
             the matching String """
-        return next((comp for comp in self.components 
+        ret_cmp = next((comp for comp in self.components 
                 if comp.component_type == component_type), 
             None)
+        if ret_cmp == None:
+            print self, "has no " + component_type
+        return ret_cmp
     
     def on_notify(self, entity, event):
         pass
@@ -40,7 +46,6 @@ class StaticText(Text):
 
         self.text  = the_text
         
-    
 
 class DynamicText(Text):
     """ The image for this class is created
@@ -74,7 +79,7 @@ class Camera(Entity):
     
 class Bullet(Entity):
 
-    def __init__(self, x, y, direction=(1, 0)):
+    def __init__(self, position=(0,0), direction=(1,0)):
         super(Bullet, self).__init__(True)
         
         self.speed = 3
@@ -83,7 +88,7 @@ class Bullet(Entity):
                 (direction[0] * self.speed, direction[1] * self.speed),
                 (10, 10),
                 (0, 0)))
-        self.components.append(GeometryComponent(self, (x, y), (10, 10)))
+        self.components.append(GeometryComponent(self, (x, y), (2, 2)))
         self.components.append(RenderComponent(self))
 
 
@@ -96,7 +101,7 @@ class Tile(Entity):
         self.components.append(GeometryComponent(self, position, dimensions, 
                         sub_surf))
         self.components.append(RenderComponent(self, image_filename)) 
-        
+
 
 class SewerMan(Entity):
 
@@ -118,14 +123,15 @@ class SewerMan(Entity):
         self.components.append(PhysicsComponent(self, (0, 0), (17, 20), (2,2)))
         self.components.append(MovementComponent(self, position))
         self.components.append(GeometryComponent(self, position, (10,10)))
-        self.components.append(RenderComponent(self, 'SewerMan.png'))
+        self.components.append(RenderComponent(self, 'SewerMan.png', make_reverse=True))
         self.components.append(ControllerComponent(self))
     
     def on_notify(self, entity, event):
-        mov_cmp = self.get_component("movementcomponent")
-        phy_cmp = self.get_component("physicscomponent")
-        geo_cmp = self.get_component("geometrycomponent")
-        ctrl_cmp = self.get_component("controllercomponent")
+        mov_cmp     = self["movementcomponent"]
+        phy_cmp     = self["physicscomponent"]
+        geo_cmp     = self["geometrycomponent"]
+        ctrl_cmp    = self["controllercomponent"]
+        
         if event == "up_pressed":
             ctrl_cmp.jump = True
         if event == "left_pressed":
@@ -144,8 +150,7 @@ class SewerMan(Entity):
             old_rect = pygame.Rect(mov_cmp.old_position.x, mov_cmp.old_position.y, geo_cmp.dst_rect.w, geo_cmp.dst_rect.h)
             
             # Get current rect of other entity
-            other_rect = entity.get_component("geometrycomponent").dst_rect
-            
+            other_rect = entity["geometrycomponent"].dst_rect
             
             # Get direction of colliding object
             direction = ""
@@ -157,7 +162,6 @@ class SewerMan(Entity):
                 direction = "left"
             elif old_rect.right <= other_rect.left:
                 direction = "right"
-            
             
             # Respond to colliding object
             if direction == "right":
