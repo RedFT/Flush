@@ -16,7 +16,7 @@ To Run
 
 Open a terminal and run
 
-$ python main2.py
+$ python main.py
 
 
 Controls
