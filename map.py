@@ -9,6 +9,7 @@ def load_map(filename, layer_name, collidable=True):
     soup = BeautifulSoup(f, "xml")
     f.close()
 
+    # parse file and retrieve values
     mwidth          = int(soup.map.layer['width'])
     mheight         = int(soup.map.layer['height'])
     twidth          = int(soup.map.tileset["tilewidth"])
@@ -22,7 +23,8 @@ def load_map(filename, layer_name, collidable=True):
     if not map_csv:
         print "No Layer with name: %s" % layer_name
         return
-    
+
+    # generate and store tiles
     tiles_list = []
     for num in map_csv:
         px = x % mwidth
@@ -34,10 +36,10 @@ def load_map(filename, layer_name, collidable=True):
         x += 1
         if num_i == 0:
             continue
-        
-        tile = Tile("TestTiles.png", 
-                (px * twidth, py * theight), 
-                (twidth, theight), 
+
+        tile = Tile("TestTiles.png",
+                (px * twidth, py * theight),
+                (twidth, theight),
                 (tx * twidth, ty * theight))
         tiles_list.append(tile)
         if not collidable:
