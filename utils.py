@@ -15,18 +15,21 @@ def filepath(path):
         return os.path.join(path)
 
 IMAGES = {}
+
+
 def load_image(filename):
     if filename not in IMAGES:
-         new_image = pygame.image.load(filepath(filename))
-         new_image = pygame.transform.scale(
-                new_image, (new_image.get_width() * SCALE, 
+        new_image = pygame.image.load(filepath(filename))
+        new_image = pygame.transform.scale(
+            new_image, (new_image.get_width() * SCALE,
                         new_image.get_height() * SCALE
                         )
-                )
-         new_image.convert_alpha()
-         IMAGES[filename] = new_image
-        
+        )
+        new_image.convert_alpha()
+        IMAGES[filename] = new_image
+
     return IMAGES[filename]
+
 
 def play_music(filename, loop=0, volume=1.0):
     pygame.mixer.music.load(filepath(filename))
@@ -35,11 +38,14 @@ def play_music(filename, loop=0, volume=1.0):
 
 SOUNDS = {}
 SND_VOLUME = 1.0
+
+
 def play_sound(filename, volume=1.0):
     if filename not in SOUNDS:
         SOUNDS[filename] = pygame.mixer.Sound(filepath(filename))
-        SOUNDS[filename].set_volume(SND_VOLUME*volume)
+        SOUNDS[filename].set_volume(SND_VOLUME * volume)
     SOUNDS[filename].play()
+
 
 def set_global_sound_volume(volume):
     global SND_VOLUME
@@ -60,7 +66,6 @@ class Timer(object):
         self.num_frames = 0
         self.frames = 0
 
-
     def on_update(self):
         self.curr_time = pygame.time.get_ticks()
         self.diff_time = self.curr_time - self.last_time
@@ -75,7 +80,7 @@ class Timer(object):
             self.speed_factor = 1
         self.last_time = self.curr_time
         self.num_frames += 1
-    
+
     def get_current_time(self):
         return self.curr_time
 

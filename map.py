@@ -1,6 +1,6 @@
-from entities  import Tile
+from entities import Tile
 from constants import SCALE, MAP_DIR
-from bs4       import BeautifulSoup
+from bs4 import BeautifulSoup
 
 
 def load_map(filename, layer_name, collidable=True):
@@ -10,13 +10,13 @@ def load_map(filename, layer_name, collidable=True):
     f.close()
 
     # parse file and retrieve values
-    mwidth          = int(soup.map.layer['width'])
-    mheight         = int(soup.map.layer['height'])
-    twidth          = int(soup.map.tileset["tilewidth"])
-    theight         = int(soup.map.tileset["tileheight"])
-    tsetwidth       = int(soup.map.tileset.image['width']) / twidth
-    tsetheight      = int(soup.map.tileset.image['height']) / theight
-    map_csv         = soup.map.find(attrs={'name' : layer_name}).data.string.split(',')
+    mwidth = int(soup.map.layer['width'])
+    mheight = int(soup.map.layer['height'])
+    twidth = int(soup.map.tileset["tilewidth"])
+    theight = int(soup.map.tileset["tileheight"])
+    tsetwidth = int(soup.map.tileset.image['width']) / twidth
+    tsetheight = int(soup.map.tileset.image['height']) / theight
+    map_csv = soup.map.find(attrs={'name': layer_name}).data.string.split(',')
 
     x, y = 0, 0
 
@@ -38,9 +38,9 @@ def load_map(filename, layer_name, collidable=True):
             continue
 
         tile = Tile("TestTiles.png",
-                (px * twidth, py * theight),
-                (twidth, theight),
-                (tx * twidth, ty * theight))
+                    (px * twidth, py * theight),
+                    (twidth, theight),
+                    (tx * twidth, ty * theight))
         tiles_list.append(tile)
         if not collidable:
             tile.collidable = False

@@ -1,5 +1,6 @@
 import pygame
 
+
 def arrow_image(color):
     img = pygame.Surface((7, 6))
     img.fill((226, 59, 252))
@@ -7,32 +8,33 @@ def arrow_image(color):
     pygame.draw.polygon(img, color, ((0, 0), (3, 3), (6, 0)))
     return img
 
+
 class Menu(object):
-    
+
     def __init__(self, font, options, x, y):
         self.x = x
         self.y = y
         self.font = font
         self.options = options
         self.option = 0
-        self.h = (len(self.options)+1)*self.font.get_height()
+        self.h = (len(self.options) + 1) * self.font.get_height()
         self.w = 0
         for o in self.options:
-            w = (len(o)+1)*self.font.get_linesize()
+            w = (len(o) + 1) * self.font.get_linesize()
             if w > self.w:
                 self.w = w
         self.rect = pygame.Rect(self.x, self.y,
                                 self.w, self.h)
-    
+
     def draw(self, surface, pos, background=None, border=None):
         ypos = pos[1]
         i = 0
         if background:
-            pygame.draw.rect(surface, background, (pos[0]-4, pos[1]-4, 
-                self.w+8, self.h+6))
+            pygame.draw.rect(surface, background, (pos[0] - 4, pos[1] - 4,
+                                                   self.w + 8, self.h + 6))
         if border:
-            pygame.draw.rect(surface, border, (pos[0]-4, pos[1]-4, 
-                self.w+8, self.h+6), 1)
+            pygame.draw.rect(surface, border, (pos[0] - 4, pos[1] - 4,
+                                               self.w + 8, self.h + 6), 1)
         for opt in self.options:
             if i == self.option:
                 icon = ">"
@@ -40,26 +42,27 @@ class Menu(object):
                 icon = " "
             ren = self.font.render(icon + opt, False, (255, 255, 0))
             surface.blit(ren, (pos[0], ypos))
-            ypos += ren.get_height()+3
+            ypos += ren.get_height() + 3
             i += 1
 
     def on_update(self):
         self.rect.x = self.x
         self.rect.y = self.y
-    
+
     def move_cursor(self, dir):
         if dir > 0:
-            if self.option < len(self.options)-1:
+            if self.option < len(self.options) - 1:
                 self.option += 1
         elif dir < 0:
             if self.option > 0:
                 self.option -= 1
-    
+
     def get_option(self):
         return self.option, self.options[self.option]
 
+
 class DialogBox(object):
-    
+
     def __init__(self, size, background_color, border_color, font, scale=1):
         self.dialog = []
         self.size = [size[0], font.get_height() + 8]
@@ -76,10 +79,10 @@ class DialogBox(object):
         self.frame = 0
         self.down_arrow = arrow_image(self.font_color)
         self.update_box()
-    
+
     def set_scrolldelay(self, delay):
         self.scroll_delay = delay
-    
+
     def set_dialog(self, dialog_list):
         self.page = 0
         self.pages = len(dialog_list)
@@ -93,15 +96,15 @@ class DialogBox(object):
 
         self.image = pygame.Surface(self.size).convert_alpha()
         self.update_box()
-    
+
     def update_box(self):
         self.image.fill(self.background_color)
-        pygame.draw.rect(self.image, self.border_color, 
-            (0, 0, self.size[0]-1, self.size[1]-1), 2)
-    
+        pygame.draw.rect(self.image, self.border_color,
+                         (0, 0, self.size[0] - 1, self.size[1] - 1), 2)
+
     def progress(self):
         if self.text_pos >= len(self.curr_dialog):
-            if self.page < self.pages-1:
+            if self.page < self.pages - 1:
                 self.page += 1
                 self.text_pos = 0
             else:
@@ -112,7 +115,7 @@ class DialogBox(object):
         self.width, self.height = self.size[0], self.size[1]
         self.image = pygame.Surface(self.size).convert_alpha()
         self.update_box()
-    
+
     def draw(self, surface, pos):
         if self.shown and self.page < self.pages:
             self.update_box()
@@ -125,23 +128,23 @@ class DialogBox(object):
                     self.text_pos += 1
                     self.frame = self.scroll_delay
             else:
-                self.image.blit(self.down_arrow, 
-                    (self.image.get_width()-12, 
-                    self.image.get_height()-8))
+                self.image.blit(self.down_arrow,
+                                (self.image.get_width() - 12,
+                                 self.image.get_height() - 8))
             dialog = self.curr_dialog[:self.text_pos]
             for word in dialog.split(" "):
                 ren = self.font.render(word + " ", False, self.font_color)
                 w = ren.get_width()
-                if xpos > self.image.get_width()-w:
-                    ypos += ren.get_height()+3
+                if xpos > self.image.get_width() - w:
+                    ypos += ren.get_height() + 3
                     xpos = 4
                 self.image.blit(ren, (xpos, ypos))
                 xpos += w
             surface.blit(self.image, pos)
-    
+
     def over(self):
         return self.shown != True
-    
+
     def close(self):
         self.shown = False
         self.page = self.pages

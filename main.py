@@ -3,9 +3,10 @@ import pygame
 import random
 import os
 
-from constants               import WIN_SIZE, CAPTION, FONT_DIR
-from utils                   import Timer
-from scene                   import Scene
+from constants import WIN_SIZE, CAPTION, FONT_DIR
+from utils import Timer
+from scene import Scene
+
 
 class Game(object):
 
@@ -21,14 +22,11 @@ class Game(object):
         self.scenes = {"scene1": Scene()}
         self.curr_scene = self.scenes["scene1"]
 
-
     def on_load(self):
         self.curr_scene.on_load()
 
-
     def on_reset(self):
         self.curr_scene.on_reset()
-
 
     def on_event(self):
         self.events = pygame.event.get()
@@ -56,11 +54,9 @@ class Game(object):
             self.on_render()
 
             pygame.display.update()
-            self.surf_main.fill((80,80,100, 255))
-
-
+            self.surf_main.fill((80, 80, 100, 255))
 
 
 if __name__ == '__main__':
     random.seed()
-    Game().on_execute();
+    Game().on_execute()

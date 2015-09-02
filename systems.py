@@ -4,7 +4,7 @@ import os
 from pygame.font import Font
 
 from constants import WIN_WIDTH, WIN_HEIGHT, FONT_DIR, SCALE
-from entities  import Entity, StaticText, Text, DynamicText, SewerMan, Tile
+from entities import Entity, StaticText, Text, DynamicText, SewerMan, Tile
 
 from retrogamelib.geometry import Vector
 
@@ -24,8 +24,8 @@ class System(object):
 
     def unregister(self, obj):
         self.registered_entities = [
-                ent for ent in self.registered_entities
-                        if ent != obj]
+            ent for ent in self.registered_entities
+            if ent != obj]
 
     def global_kill(self, obj):
         for sys in obj.systems:
@@ -39,24 +39,24 @@ class CameraSystem(System):
 
     def __init__(self, cam=None):
         super(CameraSystem, self).__init__()
-        self.cam            = cam
+        self.cam = cam
 
     def registerCamera(self, cam):
-        self.cam            = cam
+        self.cam = cam
 
     def on_update(self, speed_factor):
         tgt_geo = self.cam.target["geometrycomponent"]
         cam_geo = self.cam["geometrycomponent"]
 
         distance = Vector((tgt_geo.position.x - cam_geo.position.x) + (tgt_geo.dst_rect.w / 2),
-                (tgt_geo.position.y - cam_geo.position.y) + (tgt_geo.dst_rect.h / 2))
+                          (tgt_geo.position.y - cam_geo.position.y) + (tgt_geo.dst_rect.h / 2))
 
         velocity = Vector(distance.x / self.cam.velocity.x,
-                distance.y / self.cam.velocity.y)
+                          distance.y / self.cam.velocity.y)
 
         cam_geo.position += velocity * speed_factor
 
-        self.cam.elapsed    += 1 * speed_factor
+        self.cam.elapsed += 1 * speed_factor
 
         x = (1 * (sin(self.cam.elapsed * self.cam.sinspeedx) * 4) + cam_geo.position.x)
         y = (1 * (sin(self.cam.elapsed * self.cam.sinspeedy) * 4) + cam_geo.position.y)
@@ -70,17 +70,18 @@ class CameraSystem(System):
         for other in group:
             other_ren = other["rendercomponent"]
             other_geo = other["geometrycomponent"]
-            cam_geo   = self.cam["geometrycomponent"]
-            other_ren.trans_rect   = pygame.Rect(other_geo.dst_rect.x, other_geo.dst_rect.y, 0, 0)
+            cam_geo = self.cam["geometrycomponent"]
+            other_ren.trans_rect = pygame.Rect(
+                other_geo.dst_rect.x, other_geo.dst_rect.y, 0, 0)
             other_ren.trans_rect.x -= cam_geo.dst_rect.x
             other_ren.trans_rect.y -= cam_geo.dst_rect.y
 
-    def translate_rect(self, rect=[0,0,0,0]):
+    def translate_rect(self, rect=[0, 0, 0, 0]):
         if not isinstance(rect, pygame.Rect):
             new_rect = pygame.Rect(rect[0], rect[1], rect[2], rect[3])
         else:
             new_rect = rect
-        cam_geo     = self.cam["geometrycomponent"]
+        cam_geo = self.cam["geometrycomponent"]
         new_rect.x -= cam_geo.dst_rect.x
         new_rect.y -= cam_geo.dst_rect.y
         return new_rect
@@ -97,7 +98,6 @@ class TextSystem(System):
 
         self.font = Font(FONT_DIR + font_filename, 14)
 
-
     def on_update(self, speed_factor):
         for entity in self.registered_entities:
             if type(entity) == StaticText and entity.loaded == False:
@@ -106,7 +106,7 @@ class TextSystem(System):
 
                 entity.loaded = True
                 render_cmp.image = self.font.render(entity.text,
-                        False, entity.color)
+                                                    False, entity.color)
 
                 geo_cmp.src_rect.w = render_cmp.image.get_width()
                 geo_cmp.src_rect.h = render_cmp.image.get_height()
@@ -116,9 +116,9 @@ class TextSystem(System):
                 geo_cmp = entity["geometrycomponent"]
 
                 render_cmp.image = self.font.render(
-                        entity.pretext + str(entity.attr_to_watch) +
-                                entity.posttext,
-                        False, entity.color)
+                    entity.pretext + str(entity.attr_to_watch) +
+                    entity.posttext,
+                    False, entity.color)
 
                 geo_cmp.src_rect.w = render_cmp.image.get_width()
                 geo_cmp.src_rect.h = render_cmp.image.get_height()
@@ -128,8 +128,8 @@ class TextSystem(System):
         image_h = render_cmp.image.get_height()
 
         render_cmp.image = pygame.transform.scale(render_cmp.image,
-                (image_w * SCALE,
-                 image_h * SCALE))
+                                                  (image_w * SCALE,
+                                                   image_h * SCALE))
 
 
 class FpsTextSystem(TextSystem):
@@ -139,14 +139,13 @@ class FpsTextSystem(TextSystem):
 
         self.fps = fps_object
 
-
     def on_update(self, speed_factor):
         for entity in self.registered_entities:
             render_cmp = entity["rendercomponent"]
-            geo_cmp    = entity["geometrycomponent"]
+            geo_cmp = entity["geometrycomponent"]
 
             render_cmp.image = self.font.render("FPS: " + str(self.fps.frames) + " /s",
-                    False, (0,0,255))
+                                                False, (0, 0, 255))
             geo_cmp.src_rect.w = render_cmp.image.get_width()
             geo_cmp.src_rect.h = render_cmp.image.get_height()
 
@@ -168,7 +167,7 @@ class AnimationSystem(System):
     def on_update(self, speed_factor):
         for entity in self.registered_entities:
             anim_cmp = entity["animationcomponent"]
-            geo_cmp  = entity["geometrycomponent"]
+            geo_cmp = entity["geometrycomponent"]
 
             # we need a funtion/method to get the state of the object(s)
             # and be able to override it
@@ -195,8 +194,8 @@ class AnimationSystem(System):
 
         if isinstance(entity, SewerMan):
             if entity.on_ground == True and \
-            (mov_cmp.new_position.x != mov_cmp.old_position.x) and \
-            (not ctrl_cmp.move_left and not ctrl_cmp.move_right):
+                    (mov_cmp.new_position.x != mov_cmp.old_position.x) and \
+                    (not ctrl_cmp.move_left and not ctrl_cmp.move_right):
                 if anim_cmp.curr_sequence != anim_cmp.sequences["slow"]:
                     anim_cmp.next_frame = 5
                 anim_cmp.curr_sequence = anim_cmp.sequences["slow"]
@@ -221,7 +220,7 @@ class AnimationSystem(System):
             anim_cmp.next_frame += 1
 
             if anim_cmp.next_frame >= len(anim_cmp.curr_sequence):
-                anim_cmp.next_frame = 0;
+                anim_cmp.next_frame = 0
 
             anim_cmp.curr_frame = anim_cmp.curr_sequence[anim_cmp.next_frame]
 
@@ -259,7 +258,7 @@ class MovementSystem(System):
             ctrl_cmp.jump = False
             entity.on_ground = False
 
-            physics_cmp.velocity.y += physics_cmp.gravity        * speed_factor
+            physics_cmp.velocity.y += physics_cmp.gravity * speed_factor
 
             # check velocity against limits
             if physics_cmp.velocity.y > physics_cmp.velocity_max.y:
@@ -271,8 +270,9 @@ class MovementSystem(System):
             if physics_cmp.velocity.x < -physics_cmp.velocity_max.x:
                 physics_cmp.velocity.x = -physics_cmp.velocity_max.x
 
-            move_cmp.old_position   = geo_cmp.position
-            move_cmp.new_position  = move_cmp.old_position + (physics_cmp.velocity * speed_factor)
+            move_cmp.old_position = geo_cmp.position
+            move_cmp.new_position = move_cmp.old_position + \
+                (physics_cmp.velocity * speed_factor)
             geo_cmp.position = move_cmp.new_position
 
             geo_cmp.dst_rect.x, geo_cmp.dst_rect.y = geo_cmp.position.x, geo_cmp.position.y
@@ -289,12 +289,12 @@ class EventSystem(System):
         a key (the event) and a value (list of entities that are
         listening for the event)
         """
-        self.listening_entities = {};
+        self.listening_entities = {}
 
     def on_update(self, speed_factor):
         pass
 
-    def register(self, obj, event=None): # event should be a string
+    def register(self, obj, event=None):  # event should be a string
         if event == None:
             super(EventSystem, self).register(obj)
         elif type(event) == list:
@@ -326,11 +326,12 @@ class CollisionDetectionSystem(System):
     def __init__(self):
         super(CollisionDetectionSystem, self).__init__()
         length_or_width = 512
-        self.minimum_search_area = pygame.Rect(0, 0, length_or_width, length_or_width)
+        self.minimum_search_area = pygame.Rect(
+            0, 0, length_or_width, length_or_width)
         self.debug = False
         self.surf_main = pygame.display.get_surface()
         self.quads = []
-        self.max_entities_per_quad = 40 # before returning from search_area
+        self.max_entities_per_quad = 40  # before returning from search_area
 
     def toggle_show_boxes(self):
         self.debug = not self.debug
@@ -341,7 +342,7 @@ class CollisionDetectionSystem(System):
         """
 
         entities_in_quadrant = []
-        ret_list             = []
+        ret_list = []
 
         # quadrant itself
         quadrant_r = pygame.Rect(low_x, low_y, high_x - low_x, high_y - low_y)
@@ -350,7 +351,8 @@ class CollisionDetectionSystem(System):
         quadrant_size = pygame.Rect(0, 0, high_x - low_x, high_y - low_y)
 
         # check quadrant for entities
-        entities_in_quadrant = [entity for entity in test_list if entity["geometrycomponent"].dst_rect.colliderect(quadrant_r)]
+        entities_in_quadrant = [entity for entity in test_list if entity[
+            "geometrycomponent"].dst_rect.colliderect(quadrant_r)]
 
         self.quads.append(quadrant_r)
 
@@ -367,13 +369,13 @@ class CollisionDetectionSystem(System):
         div_line_y = (quadrant_r.h / 2) + quadrant_r.y
 
         ents_in_quad1 = self.search_area(depth, entities_in_quadrant,
-                (low_x, div_line_x),(low_y, div_line_y))
+                                         (low_x, div_line_x), (low_y, div_line_y))
         ents_in_quad2 = self.search_area(depth, entities_in_quadrant,
-                (low_x, div_line_x),(div_line_y, high_y))
+                                         (low_x, div_line_x), (div_line_y, high_y))
         ents_in_quad3 = self.search_area(depth, entities_in_quadrant,
-                (div_line_x, high_x),(low_y, div_line_y))
+                                         (div_line_x, high_x), (low_y, div_line_y))
         ents_in_quad4 = self.search_area(depth, entities_in_quadrant,
-                (div_line_x, high_x),(div_line_y, high_y))
+                                         (div_line_x, high_x), (div_line_y, high_y))
 
         for ents in [ents for ents in [ents_in_quad1, ents_in_quad2, ents_in_quad3, ents_in_quad4] if len(ents) > 0]:
             for lst in ents:
@@ -384,13 +386,17 @@ class CollisionDetectionSystem(System):
 
     def on_update(self, speed_factor):
         self.quads = []
-        largest_x       = max([ent["geometrycomponent"].dst_rect.right   for ent in self.registered_entities])
-        largest_y       = max([ent["geometrycomponent"].dst_rect.bottom  for ent in self.registered_entities])
-        smallest_x      = min([ent["geometrycomponent"].position.x       for ent in self.registered_entities])
-        smallest_y      = min([ent["geometrycomponent"].position.y       for ent in self.registered_entities])
+        largest_x = max(
+            [ent["geometrycomponent"].dst_rect.right for ent in self.registered_entities])
+        largest_y = max(
+            [ent["geometrycomponent"].dst_rect.bottom for ent in self.registered_entities])
+        smallest_x = min(
+            [ent["geometrycomponent"].position.x for ent in self.registered_entities])
+        smallest_y = min(
+            [ent["geometrycomponent"].position.y for ent in self.registered_entities])
 
         list_to_test = self.search_area(0, self.registered_entities,
-                (smallest_x, largest_x), (smallest_y, largest_y))
+                                        (smallest_x, largest_x), (smallest_y, largest_y))
 
         num_checks = 0
         num_collisions = 0
@@ -400,10 +406,10 @@ class CollisionDetectionSystem(System):
         my_set = set(new_list)
         for ent1 in my_set:
             for ent2 in my_set:
-                if ent1 == ent2: # if same instance skip
+                if ent1 == ent2:  # if same instance skip
                     continue
 
-                if isinstance(ent1, Tile) and isinstance(ent2, Tile): # if two tiles skip
+                if isinstance(ent1, Tile) and isinstance(ent2, Tile):  # if two tiles skip
                     continue
                 num_checks += 1
                 if ent1["geometrycomponent"].dst_rect.colliderect(
@@ -414,15 +420,14 @@ class CollisionDetectionSystem(System):
 
         os.system("clear")
         print "-- Collision Stats --"
-        print  "{:<4} collision checks, \n{:<4} objects, \n{:<4} collision(s), \n{:<4} quads explored, \n{:<4} max entities per quadrant".format(num_checks, len(my_set), num_collisions, len(self.quads), self.max_entities_per_quad)
-
-
+        print "{:<4} collision checks, \n{:<4} objects, \n{:<4} collision(s), \n{:<4} quads explored, \n{:<4} max entities per quadrant".format(num_checks, len(my_set), num_collisions, len(self.quads), self.max_entities_per_quad)
 
     def draw_quads(self, camera_sys):
         if self.debug == False:
             return
         for quad in self.quads:
-            pygame.draw.rect(self.surf_main, (255, 255, 0), camera_sys.translate_rect(quad), 1)
+            pygame.draw.rect(self.surf_main, (255, 255, 0),
+                             camera_sys.translate_rect(quad), 1)
 
 
 class RenderSystem(System):
@@ -438,15 +443,16 @@ class RenderSystem(System):
     def on_update(self, speed_factor):
         for entity in self.registered_entities:
             render_cmp = entity["rendercomponent"]
-            geo_cmp    = entity["geometrycomponent"]
+            geo_cmp = entity["geometrycomponent"]
 
             if self.cam:
                 if isinstance(entity, Text):
-                    self.surf_main.blit(render_cmp.image, geo_cmp.dst_rect, geo_cmp.src_rect)
+                    self.surf_main.blit(
+                        render_cmp.image, geo_cmp.dst_rect, geo_cmp.src_rect)
                 elif self.cam["geometrycomponent"].dst_rect.colliderect(geo_cmp.dst_rect):
                     self.surf_main.blit(render_cmp.image, render_cmp.trans_rect,
-                        geo_cmp.src_rect)
+                                        geo_cmp.src_rect)
             else:
-                if pygame.Rect((0,0,WIN_WIDTH, WIN_HEIGHT)).colliderect(geo_cmp.dst_rect):
+                if pygame.Rect((0, 0, WIN_WIDTH, WIN_HEIGHT)).colliderect(geo_cmp.dst_rect):
                     self.surf_main.blit(render_cmp.image, render_cmp.trans_rect,
-                            geo_cmp.src_rect)
+                                        geo_cmp.src_rect)

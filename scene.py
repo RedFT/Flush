@@ -1,13 +1,13 @@
 import pygame
 
-from systems                 import *
-from entities                import *
-from components              import *
-from utils                   import Timer
+from systems import *
+from entities import *
+from components import *
+from utils import Timer
 
-from map                     import load_map
+from map import load_map
 
-from constants               import WIN_SIZE
+from constants import WIN_SIZE
 
 
 class Scene(object):
@@ -15,16 +15,16 @@ class Scene(object):
     def __init__(self,):
         super(Scene, self).__init__()
 
-        self.fps     = Timer()
+        self.fps = Timer()
         self.surf_main = pygame.display.get_surface()
 
-        self.render_sys     = RenderSystem()
-        self.move_sys       = MovementSystem()
-        self.anim_sys       = AnimationSystem()
-        self.fps_text_sys   = FpsTextSystem("Terminus.ttf", self.fps)
-        self.collision_sys  = CollisionDetectionSystem()
-        self.event_sys      = EventSystem()
-        self.camera_sys     = CameraSystem()
+        self.render_sys = RenderSystem()
+        self.move_sys = MovementSystem()
+        self.anim_sys = AnimationSystem()
+        self.fps_text_sys = FpsTextSystem("Terminus.ttf", self.fps)
+        self.collision_sys = CollisionDetectionSystem()
+        self.event_sys = EventSystem()
+        self.camera_sys = CameraSystem()
 
         self.collision_sys.toggle_show_boxes()
 
@@ -38,33 +38,32 @@ class Scene(object):
 
             self.camera_sys.register(tile)
 
-
         # Test Player
-        self.player     = SewerMan((40, 40))
+        self.player = SewerMan((40, 40))
         self.render_sys.register(self.player)
         self.anim_sys.register(self.player)
         self.move_sys.register(self.player)
         self.collision_sys.register(self.player)
         self.event_sys.register(self.player,
-                ["up_pressed",  "down_pressed",  "left_pressed",  "right_pressed",
-                 "up_released", "down_released", "left_released", "right_released"])
+                                ["up_pressed",  "down_pressed",  "left_pressed",  "right_pressed",
+                                 "up_released", "down_released", "left_released", "right_released"])
         self.camera_sys.register(self.player)
 
         # Test Fps Text
-        self.fps_text    = Text((5,5), (0,0,255))
+        self.fps_text = Text((5, 5), (0, 0, 255))
         self.render_sys.register(self.fps_text)
         self.fps_text_sys.register(self.fps_text)
 
-        self.cam        = Camera(
-                WIN_WIDTH, WIN_HEIGHT,
-                WIN_WIDTH/2, WIN_HEIGHT/2,
-                7.5, 7.5)
+        self.cam = Camera(
+            WIN_WIDTH, WIN_HEIGHT,
+            WIN_WIDTH / 2, WIN_HEIGHT / 2,
+            7.5, 7.5)
         self.camera_sys.registerCamera(self.cam)
         self.render_sys.registerCamera(self.cam)
         self.cam.follow(self.player)
 
         self.running = False
-        self.loaded  = False
+        self.loaded = False
 
         self.last_time = 0
 
