@@ -332,10 +332,14 @@ class CollisionDetectionSystem(System):
         self.quads = []
         self.max_entities_per_quad = 40 # before returning from search_area
 
-    def show_boxes(self):
-        self.debug = True
+    def toggle_show_boxes(self):
+        self.debug = not self.debug
 
     def search_area(self, depth, test_list, (low_x, high_x), (low_y, high_y)):
+        """
+        Quadtree search
+        """
+
         entities_in_quadrant = []
         ret_list             = []
 
@@ -345,33 +349,34 @@ class CollisionDetectionSystem(System):
         # dimensions of quadrant
         quadrant_size = pygame.Rect(0, 0, high_x - low_x, high_y - low_y)
 
+        # check quadrant for entities
         entities_in_quadrant = [entity for entity in test_list if entity["geometrycomponent"].dst_rect.colliderect(quadrant_r)]
 
         self.quads.append(quadrant_r)
 
-        """
+        # break case 1: if quadrant is smaller than them minimum_search_area
         if (self.minimum_search_area.contains(quadrant_size)):
             return [entities_in_quadrant]
-        """
 
+        # break case 2: if too many entities in a quadrant
         if (len(entities_in_quadrant) <= self.max_entities_per_quad):
             return [entities_in_quadrant]
 
+        # split into quadrants
         div_line_x = (quadrant_r.w / 2) + quadrant_r.x
         div_line_y = (quadrant_r.h / 2) + quadrant_r.y
 
-        quad1 = self.search_area(depth, entities_in_quadrant,
+        ents_in_quad1 = self.search_area(depth, entities_in_quadrant,
                 (low_x, div_line_x),(low_y, div_line_y))
-        quad2 = self.search_area(depth, entities_in_quadrant,
+        ents_in_quad2 = self.search_area(depth, entities_in_quadrant,
                 (low_x, div_line_x),(div_line_y, high_y))
-        quad3 = self.search_area(depth, entities_in_quadrant,
+        ents_in_quad3 = self.search_area(depth, entities_in_quadrant,
                 (div_line_x, high_x),(low_y, div_line_y))
-        quad4 = self.search_area(depth, entities_in_quadrant,
+        ents_in_quad4 = self.search_area(depth, entities_in_quadrant,
                 (div_line_x, high_x),(div_line_y, high_y))
 
-
-        for quad in [quad for quad in [quad1, quad2, quad3, quad4] if len(quad) > 0]:
-            for lst in quad:
+        for ents in [ents for ents in [ents_in_quad1, ents_in_quad2, ents_in_quad3, ents_in_quad4] if len(ents) > 0]:
+            for lst in ents:
                 if lst not in ret_list and any([ent for ent in lst if not isinstance(ent, Tile)]):
                     ret_list = ret_list + [lst]
 
@@ -383,7 +388,6 @@ class CollisionDetectionSystem(System):
         largest_y       = max([ent["geometrycomponent"].dst_rect.bottom  for ent in self.registered_entities])
         smallest_x      = min([ent["geometrycomponent"].position.x       for ent in self.registered_entities])
         smallest_y      = min([ent["geometrycomponent"].position.y       for ent in self.registered_entities])
-
 
         list_to_test = self.search_area(0, self.registered_entities,
                 (smallest_x, largest_x), (smallest_y, largest_y))
@@ -415,6 +419,8 @@ class CollisionDetectionSystem(System):
 
 
     def draw_quads(self, camera_sys):
+        if self.debug == False:
+            return
         for quad in self.quads:
             pygame.draw.rect(self.surf_main, (255, 255, 0), camera_sys.translate_rect(quad), 1)
 
