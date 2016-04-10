@@ -1,46 +1,41 @@
 #!/usr/bin/env python
-import pygame
+import pygame as pg
 import random
-import os
 
-from constants               import WIN_SIZE, CAPTION, FONT_DIR
-from utils                   import Timer
-from scene                   import Scene
+from constants import WIN_SIZE, CAPTION
+from scene import Scene
+
 
 class Game(object):
-
     def __init__(self):
         super(Game, self).__init__()
 
-        pygame.init()
-        self.surf_main = pygame.display.set_mode(WIN_SIZE)
-        pygame.display.set_caption(CAPTION)
+        pg.init()
+        self.surf_main = pg.display.set_mode(WIN_SIZE)
+        pg.display.set_caption(CAPTION)
         self.debug = False
         self.running = True
 
         self.scenes = {"scene1": Scene()}
         self.curr_scene = self.scenes["scene1"]
 
-
     def on_load(self):
         self.curr_scene.on_load()
-
 
     def on_reset(self):
         self.curr_scene.on_reset()
 
-
     def on_event(self):
-        self.events = pygame.event.get()
+        events = pg.event.get()
 
-        for e in self.events:
-            if e.type == pygame.QUIT:
+        for e in events:
+            if e.type == pg.QUIT:
                 self.running = False
-            elif e.type == pygame.KEYDOWN:
-                if e.key == pygame.K_ESCAPE:
+            elif e.type == pg.KEYDOWN:
+                if e.key == pg.K_ESCAPE:
                     self.running = False
 
-        self.curr_scene.on_event(self.events)
+        self.curr_scene.on_event(events)
 
     def on_update(self):
         self.curr_scene.on_update()
@@ -50,15 +45,13 @@ class Game(object):
 
     def on_execute(self):
         self.on_load()
-        while self.running == True:
+        while self.running:
             self.on_event()
             self.on_update()
             self.on_render()
 
-            pygame.display.update()
-            self.surf_main.fill((80,80,100, 255))
-
-
+            pg.display.update()
+            self.surf_main.fill((80, 80, 100, 255))
 
 
 if __name__ == '__main__':
