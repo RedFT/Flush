@@ -3,7 +3,7 @@ import pygame as pg
 import random
 
 from constants import WIN_SIZE, CAPTION
-from scene import Scene
+from scenes.test_scene import TestScene1, TestScene2
 
 
 class Game(object):
@@ -16,14 +16,45 @@ class Game(object):
         self.debug = False
         self.running = True
 
-        self.scenes = {"scene1": Scene()}
-        self.curr_scene = self.scenes["scene1"]
+        self.scenes = {
+            1: TestScene1(),
+            2: TestScene2(),
+        }
+        self.curr_scene = self.scenes[1]
 
     def on_load(self):
-        self.curr_scene.on_load()
+        if self.curr_scene is not None:
+            self.curr_scene.on_load()
 
     def on_reset(self):
-        self.curr_scene.on_reset()
+        if self.curr_scene is not None:
+            self.curr_scene.on_reset()
+
+    def scene_forward(self):
+        for key, value in self.scenes.iteritems():
+            if value == self.curr_scene:
+                new_key = key + 1
+                try:
+                    self.curr_scene = self.scenes[new_key]
+                except KeyError:
+                    return
+                print "Loading level: " + str(new_key)
+                self.on_reset()
+                self.on_load()
+                return
+
+    def scene_backward(self):
+        for key, value in self.scenes.iteritems():
+            if value == self.curr_scene:
+                new_key = key - 1
+                try:
+                    self.curr_scene = self.scenes[new_key]
+                except KeyError:
+                    return
+                print "Loading level: " + str(new_key)
+                self.on_reset()
+                self.on_load()
+                return
 
     def on_event(self):
         events = pg.event.get()
@@ -35,13 +66,23 @@ class Game(object):
                 if e.key == pg.K_ESCAPE:
                     self.running = False
 
-        self.curr_scene.on_event(events)
+            elif e.type == pg.KEYUP:
+                if e.key == pg.K_TAB and pg.key.get_mods() & pg.KMOD_SHIFT:
+                    self.scene_backward()
+
+                elif e.key == pg.K_TAB:
+                    self.scene_forward()
+
+        if self.curr_scene is not None:
+            self.curr_scene.on_event(events)
 
     def on_update(self):
-        self.curr_scene.on_update()
+        if self.curr_scene is not None:
+            self.curr_scene.on_update()
 
     def on_render(self):
-        self.curr_scene.on_render()
+        if self.curr_scene is not None:
+            self.curr_scene.on_render()
 
     def on_execute(self):
         self.on_load()

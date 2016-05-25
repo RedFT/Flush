@@ -1,6 +1,7 @@
-from entities  import Tile
-from constants import SCALE, MAP_DIR
-from bs4       import BeautifulSoup
+from bs4 import BeautifulSoup
+
+from constants import MAP_DIR
+from ecs.entities.entities import Tile
 
 
 def load_map(filename, layer_name, collidable=True):
@@ -10,13 +11,13 @@ def load_map(filename, layer_name, collidable=True):
     f.close()
 
     # parse file and retrieve values
-    mwidth          = int(soup.map.layer['width'])
-    mheight         = int(soup.map.layer['height'])
-    twidth          = int(soup.map.tileset["tilewidth"])
-    theight         = int(soup.map.tileset["tileheight"])
-    tsetwidth       = int(soup.map.tileset.image['width']) / twidth
-    tsetheight      = int(soup.map.tileset.image['height']) / theight
-    map_csv         = soup.map.find(attrs={'name' : layer_name}).data.string.split(',')
+    map_width = int(soup.map.layer['width'])
+    map_height = int(soup.map.layer['height'])
+    tile_width = int(soup.map.tileset["tilewidth"])
+    tile_height = int(soup.map.tileset["tileheight"])
+    tileset_width = int(soup.map.tileset.image['width']) / tile_width
+    tileset_height = int(soup.map.tileset.image['height']) / tile_height
+    map_csv = soup.map.find(attrs={'name': layer_name}).data.string.split(',')
 
     x, y = 0, 0
 
@@ -27,20 +28,20 @@ def load_map(filename, layer_name, collidable=True):
     # generate and store tiles
     tiles_list = []
     for num in map_csv:
-        px = x % mwidth
-        py = x / mwidth
+        px = x % map_width
+        py = x / map_width
         num_i = int(num)
-        tx = (num_i - 1) % tsetwidth
-        ty = (num_i - 1) / tsetheight
+        tx = (num_i - 1) % tileset_width
+        ty = (num_i - 1) / tileset_height
 
         x += 1
         if num_i == 0:
             continue
 
         tile = Tile("TestTiles.png",
-                (px * twidth, py * theight),
-                (twidth, theight),
-                (tx * twidth, ty * theight))
+                    (px * tile_width, py * tile_height),
+                    (tile_width, tile_height),
+                    (tx * tile_width, ty * tile_height))
         tiles_list.append(tile)
         if not collidable:
             tile.collidable = False
