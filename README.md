@@ -2,7 +2,8 @@ Flush
 =====
 
 Little dudes in the sewer
-** it's a work in progress
+
+![Alt text](/resources/Flush.gif?raw=true "Short Demo")
 
 
 Requirements
